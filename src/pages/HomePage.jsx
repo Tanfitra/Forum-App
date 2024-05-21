@@ -61,8 +61,8 @@ function HomePage() {
               totalLike={data.upVotesBy.length}
               totalDislike={data.downVotesBy.length}
               ownerId={data.ownerId}
-              id={data.id}
-              likes={data.likes} // Menyertakan data likes
+              threadId={data.id}
+              likes={data.likes}
               dislikes={data.dislikes}
             />
           ))}

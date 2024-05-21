@@ -45,7 +45,7 @@ function threadDetailReducer(threadDetail = null, action = {}) {
           if (comment.id === action.payload.commentId) {
             return {
               ...comment,
-              likes: [...comment.likes, action.payload.userId],
+              likes: [action.payload.userId],
             };
           }
           return comment;
@@ -58,7 +58,7 @@ function threadDetailReducer(threadDetail = null, action = {}) {
           if (comment.id === action.payload.commentId) {
             return {
               ...comment,
-              dislikes: [...comment.dislikes, action.payload.userId],
+              dislikes: [action.payload.userId],
             };
           }
           return comment;
@@ -67,15 +67,13 @@ function threadDetailReducer(threadDetail = null, action = {}) {
     case ActionType.NEUTRAL_LIKE_COMMENT:
       return {
         ...threadDetail,
-        comments: threadDetail.comments.map((comment) => {
-          if (comment.id === action.payload.commentId) {
-            return {
-              ...comment,
-              likes: comment.likes.filter((userId) => userId !== action.payload.userId),
-            };
+        comments: threadDetail.comments.map((comment) => (comment.id === action.payload.commentId
+          ? {
+            ...comment,
+            likes: comment.likes?.filter((userId) => userId !== action.payload.userId),
+            dislikes: comment.dislikes?.filter((userId) => userId !== action.payload.userId),
           }
-          return comment;
-        }),
+          : comment)),
       };
     default:
       return threadDetail;

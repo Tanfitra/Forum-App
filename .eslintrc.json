@@ -19,6 +19,10 @@
         "react"
     ],
     "rules": {
-        "linebreak-style": 0
+        "linebreak-style": "off",
+        "no-alert": "off",
+        "no-underscore-dangle": "off",
+        "import/prefer-default-export": "off",
+        "react/jsx-props-no-spreading": "off"
     }
 }

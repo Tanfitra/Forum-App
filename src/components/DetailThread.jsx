@@ -11,7 +11,6 @@ import {
   FaRegThumbsUp,
   FaRegThumbsDown,
 } from 'react-icons/fa6';
-import { ToastContainer, toast } from 'react-toastify';
 import {
   asyncLikeThreadDetail,
   asyncDislikeThreadDetail,
@@ -22,7 +21,6 @@ import {
 import { formatDate, parseHTML } from '../utils/formatter';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
-import 'react-toastify/dist/ReactToastify.css';
 
 function DetailThread({ likes = [], dislikes = [] }) {
   const { threadId } = useParams();
@@ -36,18 +34,7 @@ function DetailThread({ likes = [], dislikes = [] }) {
   const onCommentSubmit = (content) => {
     dispatch(asyncAddComment(threadId, content));
   };
-  const [isAuthenticated, setIsAuthenticated] = useState(!!authUser);
   const likeHandle = () => {
-    if (!isAuthenticated) {
-      toast.error(
-        'Please login first!',
-        {
-          theme: 'colored',
-          position: 'bottom-center',
-        },
-      );
-      return;
-    }
     if (hasUpVote) {
       dispatch(asyncNeutralLikeThreadDetail());
     } else {
@@ -56,26 +43,12 @@ function DetailThread({ likes = [], dislikes = [] }) {
   };
 
   const dislikeHandle = () => {
-    if (!isAuthenticated) {
-      toast.error(
-        'Please login first!',
-        {
-          theme: 'colored',
-          position: 'bottom-center',
-        },
-      );
-      return;
-    }
     if (hasDownVote) {
       dispatch(asyncNeutralLikeThreadDetail());
     } else {
       dispatch(asyncDislikeThreadDetail());
     }
   };
-
-  useEffect(() => {
-    setIsAuthenticated(!!authUser);
-  }, [authUser]);
 
   useEffect(() => {
     dispatch(asyncReceiveThreadDetail(threadId));
@@ -92,28 +65,27 @@ function DetailThread({ likes = [], dislikes = [] }) {
   }
 
   return (
-    <>
-      <div className="flex justify-center h-full items-center content-center bg-[#f4f4f5] text-[#3f3f46]">
-        <div className="flex flex-col w-8/12 h-full gap-4 p-8 pt-24 pb-32 text-justify bg-white shadow-lg border-b-1 border-b-gray-200">
-          <div className="border border-primary rounded w-[12%] text-center text-sm py-0.5">
-            <p>{threadDetail.category}</p>
-          </div>
-          <h1 className="text-2xl font-bold">{threadDetail.title}</h1>
-          <p className="text-md">{parseHTML(threadDetail.body)}</p>
-          <div className="flex flex-row items-center gap-4 text-sm">
-            <button className="flex items-center gap-2" onClick={likeHandle} type="button">
-              <span>{hasUpVote ? <FaThumbsUp /> : <FaRegThumbsUp />}</span>
-              <span>{threadDetail.upVotesBy?.length || 0}</span>
-            </button>
-            <button className="flex items-center gap-2" onClick={dislikeHandle} type="button">
-              <span>
-                {hasDownVote ? <FaThumbsDown /> : <FaRegThumbsDown />}
-              </span>
-              <span>{threadDetail.downVotesBy?.length || 0}</span>
-            </button>
-            <p>{formatDate(threadDetail.createdAt)}</p>
-            <div className="flex items-center gap-2">
-              {dataLoaded
+    <div className="flex justify-center h-full items-center content-center bg-[#f4f4f5] text-[#3f3f46]">
+      <div className="flex flex-col w-8/12 h-full gap-4 p-8 pt-24 pb-32 text-justify bg-white shadow-lg border-b-1 border-b-gray-200">
+        <div className="border border-primary rounded w-[12%] text-center text-sm py-0.5">
+          <p>{threadDetail.category}</p>
+        </div>
+        <h1 className="text-2xl font-bold">{threadDetail.title}</h1>
+        <p className="text-md">{parseHTML(threadDetail.body)}</p>
+        <div className="flex flex-row items-center gap-4 text-sm">
+          <button className="flex items-center gap-2" onClick={likeHandle} type="button">
+            <span>{hasUpVote ? <FaThumbsUp /> : <FaRegThumbsUp />}</span>
+            <span>{threadDetail.upVotesBy.length || 0}</span>
+          </button>
+          <button className="flex items-center gap-2" onClick={dislikeHandle} type="button">
+            <span>
+              {hasDownVote ? <FaThumbsDown /> : <FaRegThumbsDown />}
+            </span>
+            <span>{threadDetail.downVotesBy.length || 0}</span>
+          </button>
+          <p>{formatDate(threadDetail.createdAt)}</p>
+          <div className="flex items-center gap-2">
+            {dataLoaded
               && (
               <img
                 src={threadDetail.owner.avatar}
@@ -121,50 +93,48 @@ function DetailThread({ likes = [], dislikes = [] }) {
                 className="w-5 rounded-full"
               />
               )}
-              <p>
-                Dibuat oleh&nbsp;
-                {threadDetail.owner.name}
-              </p>
-            </div>
-          </div>
-          <h1 className="font-semibold">Beri Komentar</h1>
-          {authUser ? (
-            <CommentForm createComment={onCommentSubmit} />
-          ) : (
-            <div className="inline-flex space-x-1">
-              <Link to="/login" className="text-blue-700 cursor-pointer">
-                Login
-              </Link>
-              <p>untuk memberi komentar</p>
-            </div>
-          )}
-          <div>
-            <h1 className="font-semibold">
-              Komentar&nbsp;
-              (
-              {comments.length}
-              )
-            </h1>
-            {comments.map((data, index) => (
-              <Comment
-                key={index}
-                name={data.owner.name}
-                comment={parseHTML(data.content)}
-                avatar={data.owner.avatar}
-                createdAt={data.createdAt}
-                totalLike={data.upVotesBy.length}
-                totalDislike={data.downVotesBy.length}
-                likes={data.likes}
-                dislikes={data.dislikes}
-                threadId={threadId}
-                commentId={data.id}
-              />
-            ))}
+            <p>
+              Dibuat oleh&nbsp;
+              {threadDetail.owner.name}
+            </p>
           </div>
         </div>
+        <h1 className="font-semibold">Beri Komentar</h1>
+        {authUser ? (
+          <CommentForm createComment={onCommentSubmit} />
+        ) : (
+          <div className="inline-flex space-x-1">
+            <Link to="/login" className="text-blue-700 cursor-pointer">
+              Login
+            </Link>
+            <p>untuk memberi komentar</p>
+          </div>
+        )}
+        <div>
+          <h1 className="font-semibold">
+            Komentar&nbsp;
+            (
+            {comments.length}
+            )
+          </h1>
+          {comments.map((data, index) => (
+            <Comment
+              key={index}
+              name={data.owner.name}
+              comment={parseHTML(data.content)}
+              avatar={data.owner.avatar}
+              createdAt={data.createdAt}
+              totalLike={data.upVotesBy.length}
+              totalDislike={data.downVotesBy.length}
+              likes={data.likes}
+              dislikes={data.dislikes}
+              threadId={threadId}
+              commentId={data.id}
+            />
+          ))}
+        </div>
       </div>
-      <ToastContainer />
-    </>
+    </div>
   );
 }
 

@@ -8,7 +8,7 @@ import {
 import { FaRegCommentDots } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatDate, parseHTML, truncateString } from '../utils/formatter';
-import { asyncLikeThread, asyncDislikeThread, asyncNeutralLikeThread } from '../states/threads/action'; // Import aksi yang diperlukan
+import { asyncLikeThread, asyncDislikeThread, asyncNeutralLikeThread } from '../states/threads/action';
 
 function Thread({
   title,
@@ -19,12 +19,12 @@ function Thread({
   totalLike,
   totalDislike,
   ownerId,
-  id,
+  threadId,
   likes,
   dislikes,
-  authUser,
 }) {
   const dispatch = useDispatch();
+  const authUser = useSelector((states) => states.authUser);
   const users = useSelector((state) => state.users);
   const filterUser = users.find((user) => user.id === ownerId);
 
@@ -35,10 +35,10 @@ function Thread({
 
   const likeHandle = () => {
     if (hasUpVote) {
-      dispatch(asyncNeutralLikeThread(id));
+      dispatch(asyncNeutralLikeThread(threadId));
       setLikeCount((prevCount) => prevCount - 1);
     } else {
-      dispatch(asyncLikeThread(id));
+      dispatch(asyncLikeThread(threadId));
       setLikeCount((prevCount) => prevCount + 1);
     }
     setHasUpVote(!hasUpVote);
@@ -50,10 +50,10 @@ function Thread({
 
   const dislikeHandle = () => {
     if (hasDownVote) {
-      dispatch(asyncNeutralLikeThread(id));
+      dispatch(asyncNeutralLikeThread(threadId));
       setDislikeCount((prevCount) => prevCount - 1);
     } else {
-      dispatch(asyncDislikeThread(id));
+      dispatch(asyncDislikeThread(threadId));
       setDislikeCount((prevCount) => prevCount + 1);
     }
     setHasDownVote(!hasDownVote);
@@ -69,10 +69,10 @@ function Thread({
         <p>{category}</p>
       </div>
       <h1 className="text-xl font-bold">
-        <Link to={`/threads/${id}`}>{title}</Link>
+        <Link to={`/threads/${threadId}`}>{title}</Link>
       </h1>
       <p className="text-justify text-md">
-        <Link to={`/threads/${id}`}>{parseHTML(truncateString(body, 250))}</Link>
+        <Link to={`/threads/${threadId}`}>{parseHTML(truncateString(body, 250))}</Link>
       </p>
       <div className="flex flex-row items-center gap-4 text-sm">
         <button className="flex items-center gap-2" onClick={likeHandle} type="button">
@@ -107,7 +107,7 @@ Thread.propTypes = {
   totalLike: PropTypes.number.isRequired,
   totalDislike: PropTypes.number.isRequired,
   ownerId: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
+  threadId: PropTypes.string.isRequired,
 };
 
 export default Thread;
