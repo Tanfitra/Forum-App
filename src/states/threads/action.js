@@ -56,12 +56,12 @@ function neutralLikeThreadActionCreator({ threadId, userId }) {
   };
 }
 
-function asyncAddThread(title, body, category) {
+function asyncAddThread({ title, body, category }) {
   return async (dispatch) => {
     dispatch(showLoading());
 
     try {
-      const thread = await api.createThread(title, body, category);
+      const thread = await api.createThread({ title, body, category });
       dispatch(addThreadActionCreator(thread));
     } catch (error) {
       alert(error.message);
@@ -73,43 +73,73 @@ function asyncAddThread(title, body, category) {
 
 function asyncLikeThread(threadId) {
   return async (dispatch, getState) => {
-    const { authUser } = getState();
+    const { authUser, threads } = getState();
+    dispatch(showLoading());
     dispatch(likeThreadActionCreator({ threadId, userId: authUser.id }));
 
     try {
       await api.likeThread(threadId);
     } catch (error) {
       alert(error.message);
-      dispatch(likeThreadActionCreator({ threadId, userId: authUser.id }));
+      const { downVotesBy } = threads.filter(
+        (thread) => thread.id === threadId,
+      )[0];
+      if (downVotesBy.includes(authUser.id)) {
+        dispatch(dislikeThreadActionCreator({ threadId, userId: authUser.id }));
+      } else {
+        dispatch(
+          neutralLikeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      }
     }
+    dispatch(hideLoading());
   };
 }
 
 function asyncDislikeThread(threadId) {
   return async (dispatch, getState) => {
-    const { authUser } = getState();
+    const { authUser, threads } = getState();
+    dispatch(showLoading());
     dispatch(dislikeThreadActionCreator({ threadId, userId: authUser.id }));
 
     try {
       await api.dislikeThread(threadId);
     } catch (error) {
       alert(error.message);
-      dispatch(dislikeThreadActionCreator({ threadId, userId: authUser.id }));
+      const { upVotesBy } = threads.filter(
+        (thread) => thread.id === threadId,
+      )[0];
+      if (upVotesBy.includes(authUser.id)) {
+        dispatch(likeThreadActionCreator({ threadId, userId: authUser.id }));
+      } else {
+        dispatch(
+          neutralLikeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      }
     }
+    dispatch(hideLoading());
   };
 }
 
-function asyncNeutralLikeThread(threadId) {
+function asyncNeutralLikeThread({ threadId, likeTypeBefore }) {
   return async (dispatch, getState) => {
     const { authUser } = getState();
+    dispatch(showLoading());
     dispatch(neutralLikeThreadActionCreator({ threadId, userId: authUser.id }));
 
     try {
       await api.neutralLikeThread(threadId);
     } catch (error) {
       alert(error.message);
-      dispatch(neutralLikeThreadActionCreator({ threadId, userId: authUser.id }));
+      if (likeTypeBefore === 1) {
+        dispatch(likeThreadActionCreator({ threadId, userId: authUser.id }));
+      }
+
+      if (likeTypeBefore === -1) {
+        dispatch(dislikeThreadActionCreator({ threadId, userId: authUser.id }));
+      }
     }
+    dispatch(hideLoading());
   };
 }
 

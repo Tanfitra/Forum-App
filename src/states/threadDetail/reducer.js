@@ -15,65 +15,77 @@ function threadDetailReducer(threadDetail = null, action = {}) {
     case ActionType.CLEAR_THREAD_DETAIL:
       return null;
     case ActionType.LIKE_THREAD:
+      if (threadDetail.id !== action.payload.threadId) return threadDetail;
       return {
         ...threadDetail,
-        likes: threadDetail && threadDetail.likes
-          ? [...threadDetail.likes, action.payload.userId]
-          : [action.payload.userId],
+        upVotesBy: [...threadDetail.upVotesBy, action.payload.userId],
+        downVotesBy: threadDetail.downVotesBy.filter(
+          (id) => id !== action.payload.userId,
+        ),
       };
     case ActionType.DISLIKE_THREAD:
+      if (threadDetail.id !== action.payload.threadId) return threadDetail;
       return {
         ...threadDetail,
-        dislikes: threadDetail && threadDetail.dislikes
-          ? [...threadDetail.dislikes, action.payload.userId]
-          : [action.payload.userId],
+        downVotesBy: [...threadDetail.downVotesBy, action.payload.userId],
+        upVotesBy: threadDetail.upVotesBy.filter(
+          (id) => id !== action.payload.userId,
+        ),
       };
     case ActionType.NEUTRAL_LIKE_THREAD:
+      if (threadDetail.id !== action.payload.threadId) return threadDetail;
       return {
         ...threadDetail,
-        likes: threadDetail && threadDetail.likes
-          ? threadDetail.likes.filter((userId) => userId !== action.payload.userId)
-          : [],
-        dislikes: threadDetail && threadDetail.dislikes
-          ? threadDetail.dislikes.filter((userId) => userId !== action.payload.userId)
-          : [],
+        upVotesBy: threadDetail.upVotesBy.filter(
+          (id) => id !== action.payload.userId,
+        ),
+        downVotesBy: threadDetail.downVotesBy.filter(
+          (id) => id !== action.payload.userId,
+        ),
       };
     case ActionType.LIKE_COMMENT:
       return {
         ...threadDetail,
         comments: threadDetail.comments.map((comment) => {
-          if (comment.id === action.payload.commentId) {
-            return {
-              ...comment,
-              likes: [action.payload.userId],
-            };
-          }
-          return comment;
+          if (comment.id !== action.payload.commentId) return comment;
+          return {
+            ...comment,
+            upVotesBy: [...comment.upVotesBy, action.payload.userId],
+            downVotesBy: comment.downVotesBy.filter(
+              (id) => id !== action.payload.userId,
+            ),
+          };
         }),
       };
     case ActionType.DISLIKE_COMMENT:
       return {
         ...threadDetail,
         comments: threadDetail.comments.map((comment) => {
-          if (comment.id === action.payload.commentId) {
-            return {
-              ...comment,
-              dislikes: [action.payload.userId],
-            };
-          }
-          return comment;
+          if (comment.id !== action.payload.commentId) return comment;
+          return {
+            ...comment,
+            downVotesBy: [...comment.downVotesBy, action.payload.userId],
+            upVotesBy: comment.upVotesBy.filter(
+              (id) => id !== action.payload.userId,
+            ),
+          };
         }),
       };
     case ActionType.NEUTRAL_LIKE_COMMENT:
       return {
         ...threadDetail,
-        comments: threadDetail.comments.map((comment) => (comment.id === action.payload.commentId
-          ? {
+        comments: threadDetail.comments.map((comment) => {
+          if (comment.id !== action.payload.commentId) return comment;
+          return {
             ...comment,
-            likes: comment.likes?.filter((userId) => userId !== action.payload.userId),
-            dislikes: comment.dislikes?.filter((userId) => userId !== action.payload.userId),
-          }
-          : comment)),
+            upVotesBy: comment.upVotesBy.filter(
+              (id) => id !== action.payload.userId,
+            ),
+            downVotesBy: comment.downVotesBy.filter(
+              (id) => id !== action.payload.userId,
+            ),
+          };
+        }),
       };
     default:
       return threadDetail;

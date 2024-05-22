@@ -8,7 +8,7 @@ import RegisterPage from './pages/RegisterPage';
 import Navigation from './components/Navigation';
 import { asyncPreloadProcess } from './states/isPreload/action';
 import NewThreadPage from './pages/NewThreadPage';
-import DetailThread from './components/DetailThread';
+import DetailThreadPage from './pages/DetailThreadPage';
 
 function App() {
   const authUser = useSelector((states) => states.authUser);
@@ -38,7 +38,7 @@ function App() {
             element={authUser ? <Navigate to="/" /> : <RegisterPage />}
           />
           <Route path="/" element={<HomePage />} />
-          <Route path="/threads/:threadId" element={<DetailThread />} />
+          <Route path="/threads/:threadId" element={<DetailThreadPage />} />
           <Route path="/new" element={authUser ? <NewThreadPage /> : <Navigate to="/" />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

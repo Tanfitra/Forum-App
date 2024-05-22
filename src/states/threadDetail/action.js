@@ -29,28 +29,31 @@ function clearThreadDetailActionCreator() {
   };
 }
 
-function likeThreadActionCreator(userId) {
+function likeThreadActionCreator({ threadId, userId }) {
   return {
     type: ActionType.LIKE_THREAD,
     payload: {
+      threadId,
       userId,
     },
   };
 }
 
-function dislikeThreadActionCreator(userId) {
+function dislikeThreadActionCreator({ threadId, userId }) {
   return {
     type: ActionType.DISLIKE_THREAD,
     payload: {
+      threadId,
       userId,
     },
   };
 }
 
-function neutralLikeThreadActionCreator(userId) {
+function neutralLikeThreadActionCreator({ threadId, userId }) {
   return {
     type: ActionType.NEUTRAL_LIKE_THREAD,
     payload: {
+      threadId,
       userId,
     },
   };
@@ -65,30 +68,33 @@ function addCommentActionCreator(comment) {
   };
 }
 
-function likeCommentActionCreator({ commentId, userId }) {
+function likeCommentActionCreator({ threadId, commentId, userId }) {
   return {
     type: ActionType.LIKE_COMMENT,
     payload: {
+      threadId,
       commentId,
       userId,
     },
   };
 }
 
-function dislikeCommentActionCreator({ commentId, userId }) {
+function dislikeCommentActionCreator({ threadId, commentId, userId }) {
   return {
     type: ActionType.DISLIKE_COMMENT,
     payload: {
+      threadId,
       commentId,
       userId,
     },
   };
 }
 
-function neutralLikeCommentActionCreator({ commentId, userId }) {
+function neutralLikeCommentActionCreator({ threadId, commentId, userId }) {
   return {
     type: ActionType.NEUTRAL_LIKE_COMMENT,
     payload: {
+      threadId,
       commentId,
       userId,
     },
@@ -110,42 +116,77 @@ function asyncReceiveThreadDetail(threadId) {
   };
 }
 
-function asyncLikeThreadDetail() {
+function asyncLikeThreadDetail(threadId) {
   return async (dispatch, getState) => {
     const { authUser, threadDetail } = getState();
-    dispatch(likeThreadActionCreator(authUser.id));
+    dispatch(showLoading());
+    dispatch(likeThreadActionCreator({ threadId, userId: authUser.id }));
 
     try {
-      await api.likeThread(threadDetail.id);
+      await api.likeThread(threadId);
     } catch (error) {
       alert(error.message);
+      if (threadDetail.downVotesBy.includes(authUser.id)) {
+        dispatch(
+          dislikeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      } else {
+        dispatch(
+          neutralLikeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      }
     }
+    dispatch(hideLoading());
   };
 }
 
-function asyncDislikeThreadDetail() {
+function asyncDislikeThreadDetail(threadId) {
   return async (dispatch, getState) => {
     const { authUser, threadDetail } = getState();
-    dispatch(dislikeThreadActionCreator(authUser.id));
+    dispatch(showLoading());
+    dispatch(dislikeThreadActionCreator({ threadId, userId: authUser.id }));
 
     try {
-      await api.dislikeThread(threadDetail.id);
+      await api.dislikeThread(threadId);
     } catch (error) {
       alert(error.message);
+      if (threadDetail.downVotesBy.includes(authUser.id)) {
+        dispatch(
+          likeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      } else {
+        dispatch(
+          neutralLikeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      }
     }
+    dispatch(hideLoading());
   };
 }
 
-function asyncNeutralLikeThreadDetail() {
+function asyncNeutralLikeThreadDetail({ threadId, likeTypeBefore }) {
   return async (dispatch, getState) => {
-    const { authUser, threadDetail } = getState();
-    dispatch(neutralLikeThreadActionCreator(authUser.id));
+    const { authUser } = getState();
+    dispatch(showLoading());
+    dispatch(neutralLikeThreadActionCreator({ threadId, userId: authUser.id }));
 
     try {
-      await api.neutralLikeThread(threadDetail.id);
+      await api.neutralLikeThread(threadId);
     } catch (error) {
       alert(error.message);
+      if (likeTypeBefore === 1) {
+        dispatch(
+          likeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      }
+
+      if (likeTypeBefore === -1) {
+        dispatch(
+          dislikeThreadActionCreator({ threadId, userId: authUser.id }),
+        );
+      }
     }
+    dispatch(hideLoading());
   };
 }
 
@@ -164,45 +205,83 @@ function asyncAddComment(threadId, content) {
   };
 }
 
-function asyncLikeComment(threadId, commentId) {
-  return async (dispatch) => {
+function asyncLikeComment({ threadId, commentId }) {
+  return async (dispatch, getState) => {
+    const { authUser, threadDetail } = getState();
     dispatch(showLoading());
+    dispatch(likeCommentActionCreator({ threadId, commentId, userId: authUser.id }));
 
     try {
-      const vote = await api.likeComment(threadId, commentId);
-      dispatch(likeCommentActionCreator(vote));
+      await api.likeComment({ threadId, commentId });
     } catch (error) {
       alert(error.message);
+      const { downVotesBy } = threadDetail.comments.filter(
+        (comment) => comment.id === commentId,
+      )[0];
+      if (downVotesBy.includes(authUser.id)) {
+        dispatch(
+          dislikeCommentActionCreator({ threadId, commentId, userId: authUser.id }),
+        );
+      } else {
+        dispatch(
+          neutralLikeCommentActionCreator({ threadId, commentId, userId: authUser.id }),
+        );
+      }
     }
 
     dispatch(hideLoading());
   };
 }
 
-function asyncDislikeComment(threadId, commentId) {
-  return async (dispatch) => {
+function asyncDislikeComment({ threadId, commentId }) {
+  return async (dispatch, getState) => {
+    const { authUser, threadDetail } = getState();
     dispatch(showLoading());
+    dispatch(dislikeCommentActionCreator({ threadId, commentId, userId: authUser.id }));
 
     try {
-      const vote = await api.dislikeComment(threadId, commentId);
-      dispatch(dislikeCommentActionCreator(vote));
+      await api.dislikeComment({ threadId, commentId });
     } catch (error) {
       alert(error.message);
+      const { upVotesBy } = threadDetail.comments.filter(
+        (comment) => comment.id === commentId,
+      )[0];
+      if (upVotesBy.includes(authUser.id)) {
+        dispatch(
+          likeCommentActionCreator({ threadId, commentId, userId: authUser.id }),
+        );
+      } else {
+        dispatch(
+          neutralLikeCommentActionCreator({ threadId, commentId, userId: authUser.id }),
+        );
+      }
     }
 
     dispatch(hideLoading());
   };
 }
 
-function asyncNeutralLikeComment({ threadId, commentId }) {
-  return async (dispatch) => {
+function asyncNeutralLikeComment({ threadId, commentId, likeTypeBefore }) {
+  return async (dispatch, getState) => {
+    const { authUser } = getState();
     dispatch(showLoading());
+    dispatch(neutralLikeCommentActionCreator({ threadId, commentId, userId: authUser.id }));
 
     try {
-      const vote = await api.neutralLikeComment({ threadId, commentId });
-      dispatch(neutralLikeCommentActionCreator(vote));
+      await api.neutralLikeComment({ threadId, commentId });
     } catch (error) {
       alert(error.message);
+      if (likeTypeBefore === 1) {
+        dispatch(
+          likeCommentActionCreator({ threadId, commentId, userId: authUser.id }),
+        );
+      }
+
+      if (likeTypeBefore === -1) {
+        dispatch(
+          dislikeCommentActionCreator({ threadId, commentId, userId: authUser.id }),
+        );
+      }
     }
 
     dispatch(hideLoading());

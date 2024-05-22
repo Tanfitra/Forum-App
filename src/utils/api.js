@@ -106,7 +106,7 @@ const api = (() => {
     }
   }
 
-  async function createThread(title, body, category) {
+  async function createThread({ title, body, category }) {
     try {
       const response = await fetchWithAuth(`${BASE_URL}/threads`, {
         method: 'POST',
@@ -241,7 +241,7 @@ const api = (() => {
     }
   }
 
-  async function likeComment(threadId, commentId) {
+  async function likeComment({ threadId, commentId }) {
     try {
       const response = await fetchWithAuth(
         `${BASE_URL}/threads/${threadId}/comments/${commentId}/up-vote`,
@@ -265,7 +265,7 @@ const api = (() => {
     }
   }
 
-  async function dislikeComment(threadId, commentId) {
+  async function dislikeComment({ threadId, commentId }) {
     try {
       const response = await fetchWithAuth(
         `${BASE_URL}/threads/${threadId}/comments/${commentId}/down-vote`,
@@ -284,7 +284,7 @@ const api = (() => {
     }
   }
 
-  async function neutralLikeComment(threadId, commentId) {
+  async function neutralLikeComment({ threadId, commentId }) {
     try {
       const response = await fetchWithAuth(
         `${BASE_URL}/threads/${threadId}/comments/${commentId}/neutral-vote`,

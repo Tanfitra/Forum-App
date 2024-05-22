@@ -11,9 +11,8 @@ function asyncPopulateUsersAndThreads() {
 
     try {
       const users = await api.getAllUser();
-      dispatch(receiveUsersActionCreator(users));
-
       const threads = await api.getAllThread();
+      dispatch(receiveUsersActionCreator(users));
       dispatch(receiveThreadsActionCreator(threads));
     } catch (error) {
       alert(error.message);

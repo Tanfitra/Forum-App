@@ -82,7 +82,7 @@ describe('threadsReducer', () => {
     // action
     const nextState = threadsReducer(initialState, action);
     // assert
-    expect(nextState).toEqual([...initialState, action.payload.thread]);
+    expect(nextState).toEqual([action.payload.thread, ...initialState]);
   });
 
   it('should return the thread with the new like when given by LIKE_THREAD action', () => {
@@ -103,16 +103,23 @@ describe('threadsReducer', () => {
       type: 'LIKE_THREAD',
       payload: {
         threadId: 'thread-1',
-        userId: 'users-2',
+        userId: 'users-1',
       },
     };
     // action
     const nextState = threadsReducer(initialState, action);
     // assert
-    expect(nextState).toEqual([
+    expect(nextState).toStrictEqual([
       {
-        ...initialState[0],
-        likes: [action.payload.userId],
+        id: 'thread-1',
+        title: 'Thread Pertama',
+        body: 'Ini adalah thread pertama',
+        category: 'General',
+        createdAt: '2021-06-21T07:00:00.000Z',
+        ownerId: 'users-1',
+        upVotesBy: [action.payload.userId],
+        downVotesBy: [],
+        totalComments: 0,
       },
     ]);
   });
@@ -135,16 +142,23 @@ describe('threadsReducer', () => {
       type: 'DISLIKE_THREAD',
       payload: {
         threadId: 'thread-1',
-        userId: 'users-2',
+        userId: 'users-1',
       },
     };
     // action
     const nextState = threadsReducer(initialState, action);
     // assert
-    expect(nextState).toEqual([
+    expect(nextState).toStrictEqual([
       {
-        ...initialState[0],
-        dislikes: [action.payload.userId],
+        id: 'thread-1',
+        title: 'Thread Pertama',
+        body: 'Ini adalah thread pertama',
+        category: 'General',
+        createdAt: '2021-06-21T07:00:00.000Z',
+        ownerId: 'users-1',
+        upVotesBy: [],
+        downVotesBy: [action.payload.userId],
+        totalComments: 0,
       },
     ]);
   });
@@ -158,7 +172,7 @@ describe('threadsReducer', () => {
         category: 'General',
         createdAt: '2021-06-21T07:00:00.000Z',
         ownerId: 'users-1',
-        upVotesBy: ['users-2'],
+        upVotesBy: ['users-1'],
         downVotesBy: [],
         totalComments: 0,
       },
@@ -167,17 +181,23 @@ describe('threadsReducer', () => {
       type: 'NEUTRAL_LIKE_THREAD',
       payload: {
         threadId: 'thread-1',
-        userId: 'users-2',
+        userId: 'users-1',
       },
     };
     // action
     const nextState = threadsReducer(initialState, action);
     // assert
-    expect(nextState).toEqual([
+    expect(nextState).toStrictEqual([
       {
-        ...initialState[0],
-        likes: [],
-        dislikes: [],
+        id: 'thread-1',
+        title: 'Thread Pertama',
+        body: 'Ini adalah thread pertama',
+        category: 'General',
+        createdAt: '2021-06-21T07:00:00.000Z',
+        ownerId: 'users-1',
+        upVotesBy: [],
+        downVotesBy: [],
+        totalComments: 0,
       },
     ]);
   });

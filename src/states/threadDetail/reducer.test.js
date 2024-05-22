@@ -4,6 +4,7 @@
  * - threadDetailReducer
  *   - should return the comment with the new comment when given by ADD_COMMENT action
  *   - should return the thread detail when given by RECEIVE_THREAD_DETAIL action
+ *   - should return null when clear the thread detail by CLEAR_THREAD_DETAIL action
  *   - should return the thread with the new like when given by LIKE_THREAD action
  *   - should return the thread with the new dislike when given by DISLIKE_THREAD action
  *   - should return the thread with the neutral like when given by NEUTRAL_LIKE_THREAD action
@@ -78,6 +79,30 @@ describe('threadDetailReducer', () => {
     expect(nextState).toEqual(action.payload.threadDetail);
   });
 
+  it('should return null when clear the thread detail by CLEAR_THREAD_DETAIL action', () => {
+    const threadDetail = {
+      thread: {
+        id: 'thread-1',
+        title: 'Thread Pertama',
+        body: 'Ini adalah thread pertama',
+        category: 'General',
+        createdAt: '2021-06-21T07:00:00.000Z',
+        ownerId: 'users-1',
+        upVotesBy: [],
+        downVotesBy: [],
+        totalComments: 0,
+        comments: [],
+      },
+    };
+    const action = {
+      type: 'CLEAR_THREAD_DETAIL',
+    };
+    // action
+    const nextState = threadDetailReducer(threadDetail, action);
+    // assert
+    expect(nextState).toEqual(null);
+  });
+
   it('should return the thread with the new like when given by LIKE_THREAD action', () => {
     const threadDetail = {
       id: 'thread-1',
@@ -93,15 +118,17 @@ describe('threadDetailReducer', () => {
     const action = {
       type: 'LIKE_THREAD',
       payload: {
+        threadId: 'thread-1',
         userId: 'users-2',
       },
     };
     // action
     const nextState = threadDetailReducer(threadDetail, action);
     // assert
-    expect(nextState).toEqual({
+    expect(nextState).toStrictEqual({
       ...threadDetail,
-      likes: [action.payload.userId],
+      upVotesBy: [action.payload.userId],
+      downVotesBy: [],
     });
   });
 
@@ -120,15 +147,17 @@ describe('threadDetailReducer', () => {
     const action = {
       type: 'DISLIKE_THREAD',
       payload: {
+        threadId: 'thread-1',
         userId: 'users-2',
       },
     };
     // action
     const nextState = threadDetailReducer(threadDetail, action);
     // assert
-    expect(nextState).toEqual({
+    expect(nextState).toStrictEqual({
       ...threadDetail,
-      dislikes: [action.payload.userId],
+      upVotesBy: [],
+      downVotesBy: [action.payload.userId],
     });
   });
 
@@ -147,16 +176,17 @@ describe('threadDetailReducer', () => {
     const action = {
       type: 'NEUTRAL_LIKE_THREAD',
       payload: {
+        threadId: 'thread-1',
         userId: 'users-2',
       },
     };
     // action
     const nextState = threadDetailReducer(threadDetail, action);
     // assert
-    expect(nextState).toEqual({
+    expect(nextState).toStrictEqual({
       ...threadDetail,
-      likes: [],
-      dislikes: [],
+      upVotesBy: [],
+      downVotesBy: [],
     });
   });
 
@@ -167,40 +197,53 @@ describe('threadDetailReducer', () => {
       body: 'Ini adalah thread pertama',
       category: 'General',
       createdAt: '2021-06-21T07:00:00.000Z',
-      ownerId: 'users-1',
+      owner: {
+        id: 'users-1',
+        name: 'John Doe',
+        avatar: 'https://generated-image-url.jpg',
+      },
       upVotesBy: [],
       downVotesBy: [],
       comments: [
         {
           id: 'comment-1',
           content: 'Ini adalah komentar pertama',
-          createdAt: '2021-06-21T08:00:00.000Z',
+          createdAt: '2021-06-21T07:00:00.000Z',
+          owner: {
+            id: 'users-1',
+            name: 'John Doe',
+            avatar: 'https://generated-image-url.jpg',
+          },
           upVotesBy: [],
           downVotesBy: [],
-          owner: {
-            id: 'users-2',
-            name: 'user2',
-            email: 'user2@gmail.com',
-          },
         },
       ],
     };
     const action = {
       type: 'LIKE_COMMENT',
       payload: {
+        threadId: 'thread-1',
         commentId: 'comment-1',
-        userId: 'users-2',
+        userId: 'users-1',
       },
     };
 
     const nextState = threadDetailReducer(threadDetail, action);
 
-    expect(nextState).toEqual({
+    expect(nextState).toStrictEqual({
       ...threadDetail,
       comments: [
         {
-          ...threadDetail.comments[0],
-          likes: [action.payload.userId],
+          id: 'comment-1',
+          content: 'Ini adalah komentar pertama',
+          createdAt: '2021-06-21T07:00:00.000Z',
+          owner: {
+            id: 'users-1',
+            name: 'John Doe',
+            avatar: 'https://generated-image-url.jpg',
+          },
+          upVotesBy: ['users-1'],
+          downVotesBy: [],
         },
       ],
     });
@@ -213,38 +256,51 @@ describe('threadDetailReducer', () => {
       body: 'Ini adalah thread pertama',
       category: 'General',
       createdAt: '2021-06-21T07:00:00.000Z',
-      ownerId: 'users-1',
+      owner: {
+        id: 'users-1',
+        name: 'John Doe',
+        avatar: 'https://generated-image-url.jpg',
+      },
       upVotesBy: [],
       downVotesBy: [],
       comments: [
         {
           id: 'comment-1',
           content: 'Ini adalah komentar pertama',
-          createdAt: '2021-06-21T08:00:00.000Z',
+          createdAt: '2021-06-21T07:00:00.000Z',
+          owner: {
+            id: 'users-1',
+            name: 'John Doe',
+            avatar: 'https://generated-image-url.jpg',
+          },
           upVotesBy: [],
           downVotesBy: [],
-          owner: {
-            id: 'users-2',
-            name: 'user2',
-            email: 'user2@gmail.com',
-          },
         },
       ],
     };
     const action = {
       type: 'DISLIKE_COMMENT',
       payload: {
+        threadId: 'thread-1',
         commentId: 'comment-1',
-        userId: 'users-2',
+        userId: 'users-1',
       },
     };
     const nextState = threadDetailReducer(threadDetail, action);
-    expect(nextState).toEqual({
+    expect(nextState).toStrictEqual({
       ...threadDetail,
       comments: [
         {
-          ...threadDetail.comments[0],
-          dislikes: [action.payload.userId],
+          id: 'comment-1',
+          content: 'Ini adalah komentar pertama',
+          createdAt: '2021-06-21T07:00:00.000Z',
+          owner: {
+            id: 'users-1',
+            name: 'John Doe',
+            avatar: 'https://generated-image-url.jpg',
+          },
+          upVotesBy: [],
+          downVotesBy: ['users-1'],
         },
       ],
     });
@@ -256,27 +312,32 @@ describe('threadDetailReducer', () => {
       body: 'Ini adalah thread pertama',
       category: 'General',
       createdAt: '2021-06-21T07:00:00.000Z',
-      ownerId: 'users-1',
+      owner: {
+        id: 'users-1',
+        name: 'John Doe',
+        avatar: 'https://generated-image-url.jpg',
+      },
       upVotesBy: [],
       downVotesBy: [],
       comments: [
         {
           id: 'comment-1',
           content: 'Ini adalah komentar pertama',
-          createdAt: '2021-06-21T08:00:00.000Z',
-          upVotesBy: ['users-2'],
-          downVotesBy: [],
+          createdAt: '2021-06-21T07:00:00.000Z',
           owner: {
-            id: 'users-2',
-            name: 'user2',
-            email: 'user2@gmail.com',
+            id: 'users-1',
+            name: 'John Doe',
+            avatar: 'https://generated-image-url.jpg',
           },
+          upVotesBy: [],
+          downVotesBy: [],
         },
       ],
     };
     const action = {
       type: 'NEUTRAL_LIKE_COMMENT',
       payload: {
+        threadId: 'thread-1',
         commentId: 'comment-1',
         userId: 'users-2',
       },
@@ -284,6 +345,22 @@ describe('threadDetailReducer', () => {
 
     const nextState = threadDetailReducer(threadDetail, action);
 
-    expect(nextState).toEqual(threadDetail);
+    expect(nextState).toStrictEqual({
+      ...threadDetail,
+      comments: [
+        {
+          id: 'comment-1',
+          content: 'Ini adalah komentar pertama',
+          createdAt: '2021-06-21T07:00:00.000Z',
+          owner: {
+            id: 'users-1',
+            name: 'John Doe',
+            avatar: 'https://generated-image-url.jpg',
+          },
+          upVotesBy: [],
+          downVotesBy: [],
+        },
+      ],
+    });
   });
 });

@@ -7,49 +7,41 @@ function threadsReducer(threads = initialState, action = {}) {
     case ActionType.RECEIVE_THREADS:
       return action.payload.threads;
     case ActionType.ADD_THREAD:
-      return [...threads, action.payload.thread];
+      return [action.payload.thread, ...threads];
     case ActionType.LIKE_THREAD:
       return threads.map((thread) => {
-        if (thread.id === action.payload.threadId) {
-          return {
-            ...thread,
-            likes: thread.likes
-              ? [...thread.likes, action.payload.userId]
-              : [action.payload.userId],
-          };
-        }
-        return thread;
+        if (thread.id !== action.payload.threadId) return thread;
+        return {
+          ...thread,
+          upVotesBy: [...thread.upVotesBy, action.payload.userId],
+          downVotesBy: thread.downVotesBy.filter(
+            (id) => id !== action.payload.userId,
+          ),
+        };
       });
     case ActionType.DISLIKE_THREAD:
       return threads.map((thread) => {
-        if (thread.id === action.payload.threadId) {
-          return {
-            ...thread,
-            dislikes: thread.dislikes
-              ? [...thread.dislikes, action.payload.userId]
-              : [action.payload.userId],
-          };
-        }
-        return thread;
+        if (thread.id !== action.payload.threadId) return thread;
+        return {
+          ...thread,
+          downVotesBy: [...thread.downVotesBy, action.payload.userId],
+          upVotesBy: thread.upVotesBy.filter(
+            (id) => id !== action.payload.userId,
+          ),
+        };
       });
     case ActionType.NEUTRAL_LIKE_THREAD:
       return threads.map((thread) => {
-        if (thread.id === action.payload.threadId) {
-          return {
-            ...thread,
-            likes: thread.likes
-              ? thread.likes.filter(
-                (userId) => userId !== action.payload.userId,
-              )
-              : [],
-            dislikes: thread.dislikes
-              ? thread.dislikes.filter(
-                (userId) => userId !== action.payload.userId,
-              )
-              : [],
-          };
-        }
-        return thread;
+        if (thread.id !== action.payload.threadId) return thread;
+        return {
+          ...thread,
+          upVotesBy: thread.upVotesBy.filter(
+            (id) => id !== action.payload.userId,
+          ),
+          downVotesBy: thread.downVotesBy.filter(
+            (id) => id !== action.payload.userId,
+          ),
+        };
       });
     default:
       return threads;

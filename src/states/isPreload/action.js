@@ -18,27 +18,14 @@ function setIsPreloadActionCreator(isPreload) {
 function asyncPreloadProcess() {
   return async (dispatch) => {
     dispatch(showLoading());
-
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      dispatch(setAuthUserActionCreator(null));
-      dispatch(setIsPreloadActionCreator(false));
-      dispatch(hideLoading());
-      return;
-    }
-
     try {
-      // preload process
       const authUser = await api.getUserLoggedIn();
       dispatch(setAuthUserActionCreator(authUser));
     } catch (error) {
-      // fallback process
       dispatch(setAuthUserActionCreator(null));
     } finally {
-      // end preload process
       dispatch(setIsPreloadActionCreator(false));
     }
-
     dispatch(hideLoading());
   };
 }
