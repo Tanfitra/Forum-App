@@ -14,9 +14,8 @@ function RegisterPage() {
   };
   return (
     <div
-      className="w-screen h-screen"
+      className="w-screen h-screen flex bg-secondary justify-center content-center items-center"
     >
-      <h1 className="text-[32px] font-bold">Register</h1>
       <RegisterForm registerUser={onRegister} />
     </div>
   );

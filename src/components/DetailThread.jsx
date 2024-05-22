@@ -1,141 +1,185 @@
-/* eslint-disable import/no-named-as-default-member */
-/* eslint-disable import/no-named-as-default */
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable react/prop-types */
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
-  FaThumbsUp,
-  FaThumbsDown,
   FaRegThumbsUp,
   FaRegThumbsDown,
+  FaThumbsUp,
+  FaThumbsDown,
 } from 'react-icons/fa6';
-import {
-  asyncLikeThreadDetail,
-  asyncDislikeThreadDetail,
-  asyncNeutralLikeThreadDetail,
-  asyncReceiveThreadDetail,
-  asyncAddComment,
-} from '../states/threadDetail/action';
-import { formatDate, parseHTML } from '../utils/formatter';
-import Comment from './Comment';
+import parse from 'html-react-parser';
+import { formatDate } from '../utils/formatter';
 import CommentForm from './CommentForm';
+import CommentList from './CommentList';
 
-function DetailThread({ likes = [], dislikes = [] }) {
-  const { threadId } = useParams();
-  const dispatch = useDispatch();
-  const { threadDetail = null, authUser } = useSelector((states) => states);
-  const comments = threadDetail ? threadDetail.comments : [];
-  const [dataLoaded, setDataLoaded] = useState(false);
+function DetailThread({
+  threadId,
+  title,
+  body,
+  category,
+  createdAt,
+  owner,
+  upVotesBy,
+  downVotesBy,
+  comments,
+  authUserId,
+  onLikeThread,
+  onDislikeThread,
+  onNeutralThread,
+  createComment,
+  onLikeComment,
+  onDislikeComment,
+  onNeutralComment,
+}) {
+  const hasLikeThread = upVotesBy.includes(authUserId);
+  const hasDislikeThread = downVotesBy.includes(authUserId);
 
-  const hasUpVote = likes.includes(authUser);
-  const hasDownVote = dislikes.includes(authUser);
-  const onCommentSubmit = (content) => {
-    dispatch(asyncAddComment(threadId, content));
-  };
-  const likeHandle = () => {
-    if (hasUpVote) {
-      dispatch(asyncNeutralLikeThreadDetail());
-    } else {
-      dispatch(asyncLikeThreadDetail());
+  const onLikeThreadHandle = () => {
+    if (!authUserId) {
+      alert('You must login to like this thread');
+      return;
     }
+    onLikeThread(threadId);
   };
 
-  const dislikeHandle = () => {
-    if (hasDownVote) {
-      dispatch(asyncNeutralLikeThreadDetail());
-    } else {
-      dispatch(asyncDislikeThreadDetail());
+  const onDislikeThreadHandle = () => {
+    if (!authUserId) {
+      alert('You must login to dislike this thread');
+      return;
     }
+    onDislikeThread(threadId);
   };
 
-  useEffect(() => {
-    dispatch(asyncReceiveThreadDetail(threadId));
-  }, [threadId, dispatch]);
-
-  useEffect(() => {
-    if (threadDetail && threadDetail.owner.avatar) {
-      setDataLoaded(true);
+  const onNeutralThreadHandle = ({ likeTypeBefore }) => {
+    if (!authUserId) {
+      alert('You must login to neutral like this thread');
+      return;
     }
-  }, [threadDetail]);
-
-  if (!threadDetail) {
-    return null;
-  }
+    onNeutralThread({ threadId, likeTypeBefore });
+  };
 
   return (
-    <div className="flex justify-center h-full items-center content-center bg-[#f4f4f5] text-[#3f3f46]">
-      <div className="flex flex-col w-8/12 h-full gap-4 p-8 pt-24 pb-32 text-justify bg-white shadow-lg border-b-1 border-b-gray-200">
-        <div className="border border-primary rounded w-[12%] text-center text-sm py-0.5">
-          <p>{threadDetail.category}</p>
-        </div>
-        <h1 className="text-2xl font-bold">{threadDetail.title}</h1>
-        <p className="text-md">{parseHTML(threadDetail.body)}</p>
-        <div className="flex flex-row items-center gap-4 text-sm">
-          <button className="flex items-center gap-2" onClick={likeHandle} type="button">
-            <span>{hasUpVote ? <FaThumbsUp /> : <FaRegThumbsUp />}</span>
-            <span>{threadDetail.upVotesBy.length || 0}</span>
-          </button>
-          <button className="flex items-center gap-2" onClick={dislikeHandle} type="button">
-            <span>
-              {hasDownVote ? <FaThumbsDown /> : <FaRegThumbsDown />}
-            </span>
-            <span>{threadDetail.downVotesBy.length || 0}</span>
-          </button>
-          <p>{formatDate(threadDetail.createdAt)}</p>
+    <div className="flex justify-center h-full items-center content-center bg-secondary text-white">
+      <div className="flex flex-col w-8/12 rounded-lg gap-4 p-8 mt-24 mb-12 text-justify bg-primary shadow-lg ">
+        <div className="flex justify-between">
           <div className="flex items-center gap-2">
-            {dataLoaded
-              && (
-              <img
-                src={threadDetail.owner.avatar}
-                alt={threadDetail.owner.name}
-                className="w-5 rounded-full"
-              />
-              )}
-            <p>
-              Dibuat oleh&nbsp;
-              {threadDetail.owner.name}
-            </p>
-          </div>
-        </div>
-        <h1 className="font-semibold">Beri Komentar</h1>
-        {authUser ? (
-          <CommentForm createComment={onCommentSubmit} />
-        ) : (
-          <div className="inline-flex space-x-1">
-            <Link to="/login" className="text-blue-700 cursor-pointer">
-              Login
-            </Link>
-            <p>untuk memberi komentar</p>
-          </div>
-        )}
-        <div>
-          <h1 className="font-semibold">
-            Komentar&nbsp;
-            (
-            {comments.length}
-            )
-          </h1>
-          {comments.map((data, index) => (
-            <Comment
-              key={index}
-              name={data.owner.name}
-              comment={parseHTML(data.content)}
-              avatar={data.owner.avatar}
-              createdAt={data.createdAt}
-              totalLike={data.upVotesBy.length}
-              totalDislike={data.downVotesBy.length}
-              likes={data.likes}
-              dislikes={data.dislikes}
-              threadId={threadId}
-              commentId={data.id}
+            <img
+              src={owner.avatar}
+              alt={owner.name}
+              className="w-8 rounded-full"
             />
-          ))}
+            <div>
+              {owner.name}
+            </div>
+          </div>
+
+          <div className="border border-white rounded-lg w-[15%] text-center text-sm py-1">
+            <div>
+              #
+              {category}
+            </div>
+          </div>
         </div>
+        <h1 className="text-2xl font-bold">{title}</h1>
+        <p className="text-md">{parse(body)}</p>
+        <div className="flex flex-row items-center gap-4 w-fit px-4 py-1.5 rounded-lg text-base bg-tertiary">
+          <div>
+            {hasLikeThread ? (
+              <div className="flex items-center gap-2">
+                <FaThumbsUp
+                  className="cursor-pointer"
+                  size="20"
+                  onClick={() => onNeutralThreadHandle({ threadId, voteTypeBefore: 1 })}
+                />
+                <span>
+                  {upVotesBy.length}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <FaRegThumbsUp
+                  className="cursor-pointer"
+                  size="20"
+                  onClick={() => onLikeThreadHandle(threadId)}
+                />
+                <span>
+                  {upVotesBy.length}
+                </span>
+              </div>
+            )}
+          </div>
+          <div>
+            {hasDislikeThread ? (
+              <div className="flex items-center gap-2">
+                <FaThumbsDown
+                  className="cursor-pointer"
+                  size="20"
+                  onClick={() => onNeutralThreadHandle({ threadId, voteTypeBefore: 1 })}
+                />
+                <span>
+                  {downVotesBy.length}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <FaRegThumbsDown
+                  className="cursor-pointer"
+                  size="20"
+                  onClick={() => onDislikeThreadHandle(threadId)}
+                />
+                <span>
+                  {downVotesBy.length}
+                </span>
+              </div>
+            )}
+          </div>
+          <div>{formatDate(createdAt)}</div>
+        </div>
+        <CommentForm authUserId={authUserId} createComment={createComment} />
+        <CommentList
+          comments={comments}
+          onLikeComment={onLikeComment}
+          onDislikeComment={onDislikeComment}
+          onNeutralComment={onNeutralComment}
+        />
       </div>
     </div>
   );
 }
+
+const ownerShape = {
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  email: PropTypes.string,
+  avatar: PropTypes.string.isRequired,
+};
+
+DetailThread.propTypes = {
+  threadId: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  body: PropTypes.string.isRequired,
+  category: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired,
+  owner: PropTypes.shape(ownerShape).isRequired,
+  upVotesBy: PropTypes.arrayOf(PropTypes.string).isRequired,
+  downVotesBy: PropTypes.arrayOf(PropTypes.string).isRequired,
+  comments: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      content: PropTypes.string.isRequired,
+      createdAt: PropTypes.string.isRequired,
+      owner: PropTypes.shape(ownerShape).isRequired,
+      upVotesBy: PropTypes.arrayOf(PropTypes.string).isRequired,
+      downVotesBy: PropTypes.arrayOf(PropTypes.string).isRequired,
+    }),
+  ).isRequired,
+  authUserId: PropTypes.string.isRequired,
+  onLikeThread: PropTypes.func.isRequired,
+  onDislikeThread: PropTypes.func.isRequired,
+  onNeutralThread: PropTypes.func.isRequired,
+  createComment: PropTypes.func.isRequired,
+  onLikeComment: PropTypes.func.isRequired,
+  onDislikeComment: PropTypes.func.isRequired,
+  onNeutralComment: PropTypes.func.isRequired,
+};
 
 export default DetailThread;

@@ -13,7 +13,7 @@ function NewThreadPage() {
     navigate('/');
   };
   return (
-    <div className="w-screen h-screen flex bg-[#f4f4f5] justify-center content-center items-center">
+    <div className="w-screen h-screen flex bg-secondary justify-center content-center items-center">
       <ThreadForm createThread={onAddThread} />
     </div>
   );

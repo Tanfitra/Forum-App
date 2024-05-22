@@ -25,14 +25,15 @@ function RegisterForm({ registerUser }) {
   };
 
   return (
-    <form className="w-screen h-[500px] flex flex-col justify-center items-center">
+    <form className="w-8/12 py-20 mt-16 rounded-lg bg-primary flex flex-col justify-center items-center text-white">
+      <h1 className="text-[32px] font-bold">Register</h1>
       <div className="flex flex-col w-3/6 gap-2 mb-1">
         <p>Name</p>
         <input
           type="text"
           value={name}
           onChange={onNameChange}
-          className="py-2 border rounded px-2"
+          className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
       <div className="flex flex-col w-3/6 gap-2 mb-1">
@@ -41,7 +42,7 @@ function RegisterForm({ registerUser }) {
           type="email"
           value={email}
           onChange={onEmailChange}
-          className="py-2 border rounded px-2"
+          className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
       <div className="flex flex-col w-3/6 gap-2 mb-1">
@@ -50,13 +51,13 @@ function RegisterForm({ registerUser }) {
           type="password"
           value={password}
           onChange={onPasswordChange}
-          className="py-2 border rounded px-2"
+          className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
       <div className="flex flex-row items-center justify-between gap-2 w-3/6 mt-[16px]">
         <div className="inline-flex space-x-1">
           <p>Already have an account?</p>
-          <Link to="/register" className="cursor-pointer hover:text-secondary">Login</Link>
+          <Link to="/login" className="cursor-pointer hover:text-secondary">Login</Link>
         </div>
         <button
           type="button"

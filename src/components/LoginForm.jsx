@@ -24,14 +24,15 @@ function LoginForm({ loginUser }) {
   };
 
   return (
-    <form className="w-screen h-[500px] flex flex-col justify-center items-center">
+    <form className="w-8/12 py-20 mt-16 rounded-lg bg-primary flex flex-col justify-center items-center text-white">
+      <h1 className="text-[32px] font-bold">Login</h1>
       <div className="flex flex-col w-3/6 gap-2 mb-1">
         <p>Email</p>
         <input
           type="email"
           value={email}
           onChange={onEmailChange}
-          className="py-2 border rounded px-2"
+          className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
       <div className="flex flex-col w-3/6 gap-2 mb-1">
@@ -40,7 +41,7 @@ function LoginForm({ loginUser }) {
           type="password"
           value={password}
           onChange={onPasswordChange}
-          className="py-2 border rounded px-2"
+          className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
       <div className="flex flex-row items-center justify-between gap-2 w-3/6 mt-[16px]">

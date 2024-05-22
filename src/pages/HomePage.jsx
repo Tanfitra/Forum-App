@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import CategoryThread from '../components/CategoryThread';
-import Thread from '../components/Thread';
+import ThreadList from '../components/ThreadList';
 import Leaderboard from '../components/Leaderboard';
-import { parseHTML } from '../utils/formatter';
+import { asyncLikeThread, asyncDislikeThread, asyncNeutralLikeThread } from '../states/threads/action';
 import { asyncPopulateUsersAndThreads } from '../states/shared/action';
 import { asyncGetLeaderboards } from '../states/leaderboard/action';
 
@@ -13,8 +13,21 @@ function HomePage() {
     threads = [],
     leaderboards = [],
     users = [],
-  } = useSelector((state) => state);
+    authUser,
+  } = useSelector((states) => states);
   const dispatch = useDispatch();
+
+  const onLikeThreadHandle = (threadId) => {
+    dispatch(asyncLikeThread(threadId));
+  };
+
+  const onDislikeThreadHandle = (threadId) => {
+    dispatch(asyncDislikeThread(threadId));
+  };
+
+  const onNeutralThreadHandle = ({ threadId, likeTypeBefore }) => {
+    dispatch(asyncNeutralLikeThread({ threadId, likeTypeBefore }));
+  };
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [previousCategory, setPreviousCategory] = useState(null);
@@ -30,13 +43,11 @@ function HomePage() {
       if (selectedCategory === previousCategory) return true;
       return thread.category === selectedCategory;
     })
-    .map((thread) => {
-      const threadUser = users.find((user) => user.id === thread.ownerId);
-      return {
-        ...thread,
-        user: threadUser, // Update the property name to 'user'
-      };
-    });
+    .map((thread) => ({
+      ...thread,
+      owner: users.find((user) => user.id === thread.ownerId),
+      authUserId: authUser ? authUser.id : '',
+    }));
 
   const handleCategorySelect = (category) => {
     setPreviousCategory(selectedCategory);
@@ -44,46 +55,38 @@ function HomePage() {
   };
 
   return (
-    <div className="flex pl-12 pt-24 bg-[#f4f4f5] pb-12">
-      <div className="container w-8/12">
-        <div className="border-t shadow-lg border-x border-secondary">
-          <CategoryThread setSelectedCategory={handleCategorySelect} />
-        </div>
-        <div className="mb-4 border-b shadow-lg border-x border-secondary">
-          {threadList.map((data, i) => (
-            <Thread
-              key={i}
-              title={data.title}
-              body={parseHTML(data.body)}
-              category={data.category}
-              createdAt={data.createdAt}
-              totalComments={data.totalComments}
-              totalLike={data.upVotesBy.length}
-              totalDislike={data.downVotesBy.length}
-              ownerId={data.ownerId}
-              threadId={data.id}
-              likes={data.likes}
-              dislikes={data.dislikes}
-            />
-          ))}
-        </div>
+    <div className="bg-secondary pt-24 pb-12">
+      <div className="w-screen pl-12 -pb-12">
+        <CategoryThread setSelectedCategory={handleCategorySelect} />
       </div>
-      <div className="container items-center w-3/12 ml-16">
-        <div className="flex flex-col gap-4 p-8 bg-white rounded shadow-lg border border-secondary text-[#3f3f46]">
-          <h1 className="font-bold">Klasmen Pengguna Aktif</h1>
-          <div className="flex justify-between">
-            <p>Pengguna</p>
-            <p>Skor</p>
+      <div className="flex pl-12 space-x-12 pjustify-between">
+        <div className="container w-8/12">
+          <div className="mb-4">
+            <ThreadList
+              threads={threadList}
+              onLikeThread={onLikeThreadHandle}
+              onDislikeThread={onDislikeThreadHandle}
+              onNeutralThread={onNeutralThreadHandle}
+            />
           </div>
-          <div className="flex flex-col gap-4">
-            {leaderboards?.map((data, i) => (
-              <Leaderboard
-                key={i}
-                name={data.user.name}
-                score={data.score}
-                avatar={data.user.avatar}
-              />
-            ))}
+        </div>
+        <div className="container items-center w-3/12 bg-secondary pt-4">
+          <div className="flex flex-col gap-4 p-8 rounded-lg shadow-lg text-white bg-primary">
+            <h1 className="font-bold">Klasmen Pengguna Aktif</h1>
+            <div className="flex justify-between">
+              <p>Pengguna</p>
+              <p>Skor</p>
+            </div>
+            <div className="flex flex-col gap-4">
+              {leaderboards?.map((data, i) => (
+                <Leaderboard
+                  key={i}
+                  name={data.user.name}
+                  score={data.score}
+                  avatar={data.user.avatar}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

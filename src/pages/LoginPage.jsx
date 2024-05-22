@@ -15,9 +15,8 @@ function LoginPage() {
   };
   return (
     <div
-      className="w-screen h-screen"
+      className="w-screen h-screen flex bg-secondary justify-center content-center items-center"
     >
-      <h1 className="text-[32px] font-bold">Login</h1>
       <LoginForm loginUser={onLogin} />
     </div>
   );
