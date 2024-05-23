@@ -32,6 +32,7 @@ function RegisterForm({ registerUser }) {
         <input
           type="text"
           value={name}
+          placeholder="Name"
           onChange={onNameChange}
           className="py-2 border rounded px-2 bg-secondary"
         />
@@ -41,6 +42,7 @@ function RegisterForm({ registerUser }) {
         <input
           type="email"
           value={email}
+          placeholder="Email"
           onChange={onEmailChange}
           className="py-2 border rounded px-2 bg-secondary"
         />
@@ -50,6 +52,7 @@ function RegisterForm({ registerUser }) {
         <input
           type="password"
           value={password}
+          placeholder="Password"
           onChange={onPasswordChange}
           className="py-2 border rounded px-2 bg-secondary"
         />

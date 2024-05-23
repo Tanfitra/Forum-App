@@ -26,6 +26,7 @@ function CommentForm({ authUserId, createComment }) {
           <textarea
             value={content}
             onChange={onContentChange}
+            placeholder="Write your comment here..."
             className="w-full h-32 px-2 border rounded bg-secondary"
           />
           <button
@@ -38,12 +39,11 @@ function CommentForm({ authUserId, createComment }) {
           <ToastContainer />
         </form>
       ) : (
-        <div className="inline-flex space-x-1">
-          <Link to="/login" className="text-blue-700 cursor-pointer">
-            Login
+        <p className="inline-flex space-x-1">
+          <Link to="/login" className="cursor-pointer">
+            Login untuk memberi komentar
           </Link>
-          <span>untuk memberi komentar</span>
-        </div>
+        </p>
       )}
     </div>
   );

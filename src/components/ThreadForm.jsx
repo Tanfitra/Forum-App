@@ -17,6 +17,7 @@ function ThreadForm({ createThread }) {
           type="text"
           value={title}
           onChange={onTitleChange}
+          placeholder="Enter title here..."
           className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
@@ -26,6 +27,7 @@ function ThreadForm({ createThread }) {
           type="text"
           value={category}
           onChange={onCategoryChange}
+          placeholder="Enter category here..."
           className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
@@ -34,6 +36,7 @@ function ThreadForm({ createThread }) {
         <textarea
           value={body}
           onChange={onBodyChange}
+          placeholder="Enter body here..."
           className="py-2 border rounded px-2 bg-secondary"
         />
       </div>

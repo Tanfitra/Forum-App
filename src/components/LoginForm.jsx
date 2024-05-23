@@ -32,6 +32,7 @@ function LoginForm({ loginUser }) {
           type="email"
           value={email}
           onChange={onEmailChange}
+          placeholder="Email"
           className="py-2 border rounded px-2 bg-secondary"
         />
       </div>
@@ -40,6 +41,7 @@ function LoginForm({ loginUser }) {
         <input
           type="password"
           value={password}
+          placeholder="Password"
           onChange={onPasswordChange}
           className="py-2 border rounded px-2 bg-secondary"
         />
