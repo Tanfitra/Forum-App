@@ -1,5 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable no-alert */
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import api from '../../utils/api';
 import { receiveThreadsActionCreator } from '../threads/action';
