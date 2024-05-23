@@ -1,19 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { GoCommentDiscussion } from 'react-icons/go';
 import { MdOutlineAddComment } from 'react-icons/md';
 import { RiLoginBoxLine, RiLogoutBoxLine } from 'react-icons/ri';
-import { useSelector, useDispatch } from 'react-redux';
-import { asyncUnsetAuthUser } from '../states/authUser/action';
+import { useSelector } from 'react-redux';
 import Loading from './Loading';
 
-function Navigation() {
+function Navigation({ onSignOut }) {
   const { authUser } = useSelector((state) => state);
-  const dispatch = useDispatch();
-
-  const onSignOut = () => {
-    dispatch(asyncUnsetAuthUser());
-  };
 
   return (
     <>
@@ -77,5 +72,9 @@ function Navigation() {
     </>
   );
 }
+
+Navigation.propTypes = {
+  onSignOut: PropTypes.func.isRequired,
+};
 
 export default Navigation;

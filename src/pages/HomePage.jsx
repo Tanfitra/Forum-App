@@ -38,16 +38,16 @@ function HomePage() {
   }, [dispatch]);
 
   const threadList = threads
-    .filter((thread) => {
-      if (!selectedCategory) return true;
-      if (selectedCategory === previousCategory) return true;
-      return thread.category === selectedCategory;
-    })
     .map((thread) => ({
       ...thread,
       owner: users.find((user) => user.id === thread.ownerId),
       authUserId: authUser ? authUser.id : '',
-    }));
+    }))
+    .filter((thread) => {
+      if (!selectedCategory) return true;
+      if (selectedCategory === previousCategory) return true;
+      return thread.category === selectedCategory;
+    });
 
   const handleCategorySelect = (category) => {
     setPreviousCategory(selectedCategory);

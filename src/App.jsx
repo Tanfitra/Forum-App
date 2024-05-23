@@ -9,6 +9,7 @@ import Navigation from './components/Navigation';
 import { asyncPreloadProcess } from './states/isPreload/action';
 import NewThreadPage from './pages/NewThreadPage';
 import DetailThreadPage from './pages/DetailThreadPage';
+import { asyncUnsetAuthUser } from './states/authUser/action';
 
 function App() {
   const authUser = useSelector((states) => states.authUser);
@@ -18,6 +19,10 @@ function App() {
     dispatch(asyncPreloadProcess());
   }, [dispatch]);
 
+  const onSignOut = () => {
+    dispatch(asyncUnsetAuthUser());
+  };
+
   if (isPreload) {
     return null;
   }
@@ -25,7 +30,9 @@ function App() {
   return (
     <>
       <header>
-        <Navigation />
+        <Navigation
+          onSignOut={onSignOut}
+        />
       </header>
       <main>
         <Routes>

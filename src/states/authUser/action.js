@@ -28,10 +28,7 @@ function asyncSetAuthUser(email, password) {
     dispatch(showLoading());
 
     try {
-      const { token, error } = await api.loginUser(email, password);
-      if (error) {
-        throw new Error(error);
-      }
+      const { token } = await api.loginUser(email, password);
       api.putAccessToken(token);
       const authUser = await api.getUserLoggedIn();
       dispatch(setAuthUserActionCreator(authUser));

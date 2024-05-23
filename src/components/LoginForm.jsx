@@ -54,6 +54,7 @@ function LoginForm({ loginUser }) {
         <button
           type="button"
           onClick={handleSubmit}
+          id="loginUser"
           className="border rounded px-12 py-1.5 bg-secondary"
         >
           Login
